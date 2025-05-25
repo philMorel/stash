@@ -13,18 +13,17 @@ import { Performer } from "src/components/Performers/PerformerSelect";
 import { sortStoredIdObjects } from "src/utils/data";
 import {
   ObjectListScrapeResult,
-  ObjectScrapeResult,
   ScrapeResult,
 } from "src/components/Shared/ScrapeDialog/scrapeResult";
 import {
   ScrapedGroupsRow,
   ScrapedPerformersRow,
-  ScrapedStudioRow,
+  ScrapedStudiosRow,
 } from "src/components/Shared/ScrapeDialog/ScrapedObjectsRow";
 import {
   useCreateScrapedGroup,
   useCreateScrapedPerformer,
-  useCreateScrapedStudio,
+  useCreateScrapedStudios,
 } from "src/components/Shared/ScrapeDialog/createObjects";
 import { Tag } from "src/components/Tags/TagSelect";
 import { Studio } from "src/components/Studios/StudioSelect";
@@ -33,7 +32,7 @@ import { useScrapedTags } from "src/components/Shared/ScrapeDialog/scrapedTags";
 
 interface ISceneScrapeDialogProps {
   scene: Partial<GQL.SceneUpdateInput>;
-  sceneStudio: Studio | null;
+  sceneStudios: Studio[];
   scenePerformers: Performer[];
   sceneTags: Tag[];
   sceneGroups: Group[];
@@ -45,7 +44,7 @@ interface ISceneScrapeDialogProps {
 
 export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
   scene,
-  sceneStudio,
+  sceneStudios,
   scenePerformers,
   sceneTags,
   sceneGroups,
@@ -75,19 +74,21 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
   const [director, setDirector] = useState<ScrapeResult<string>>(
     new ScrapeResult<string>(scene.director, scraped.director)
   );
-  const [studio, setStudio] = useState<ObjectScrapeResult<GQL.ScrapedStudio>>(
-    new ObjectScrapeResult<GQL.ScrapedStudio>(
-      sceneStudio
-        ? {
-            stored_id: sceneStudio.id,
-            name: sceneStudio.name,
-          }
-        : undefined,
-      scraped.studio?.stored_id ? scraped.studio : undefined
+  const [studios, setStudios] = useState<
+    ObjectListScrapeResult<GQL.ScrapedStudio>
+  >(
+    new ObjectListScrapeResult<GQL.ScrapedStudio>(
+      sortStoredIdObjects(
+        sceneStudios.map((studio) => ({
+          stored_id: studio.id,
+          name: studio.name,
+        }))
+      ),
+      sortStoredIdObjects(scraped.studios ?? undefined)
     )
   );
-  const [newStudio, setNewStudio] = useState<GQL.ScrapedStudio | undefined>(
-    scraped.studio && !scraped.studio.stored_id ? scraped.studio : undefined
+  const [newStudios, setNewStudios] = useState<GQL.ScrapedStudio[]>(
+    scraped.studios?.filter((t) => !t.stored_id) ?? []
   );
 
   const [stashID, setStashID] = useState(
@@ -145,10 +146,11 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
     new ScrapeResult<string>(scene.cover_image, scraped.image)
   );
 
-  const createNewStudio = useCreateScrapedStudio({
-    scrapeResult: studio,
-    setScrapeResult: setStudio,
-    setNewObject: setNewStudio,
+  const createNewStudio = useCreateScrapedStudios({
+    scrapeResult: studios,
+    setScrapeResult: setStudios,
+    newObjects: newStudios,
+    setNewObjects: setNewStudios,
     endpoint,
   });
 
@@ -178,7 +180,7 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
       urls,
       date,
       director,
-      studio,
+      studios,
       performers,
       groups,
       tags,
@@ -189,14 +191,14 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
     newTags.length === 0 &&
     newPerformers.length === 0 &&
     newGroups.length === 0 &&
-    !newStudio
+    newStudios.length === 0
   ) {
     onClose();
     return <></>;
   }
 
   function makeNewScrapedItem(): GQL.ScrapedSceneDataFragment {
-    const newStudioValue = studio.getNewValue();
+    const newStudiosValue = studios.getNewValue();
 
     return {
       title: title.getNewValue(),
@@ -204,7 +206,7 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
       urls: urls.getNewValue(),
       date: date.getNewValue(),
       director: director.getNewValue(),
-      studio: newStudioValue,
+      studios: newStudiosValue,
       performers: performers.getNewValue(),
       groups: groups.getNewValue(),
       tags: tags.getNewValue(),
@@ -248,12 +250,12 @@ export const SceneScrapeDialog: React.FC<ISceneScrapeDialogProps> = ({
           result={director}
           onChange={(value) => setDirector(value)}
         />
-        <ScrapedStudioRow
+        <ScrapedStudiosRow
           field="studio"
           title={intl.formatMessage({ id: "studios" })}
-          result={studio}
-          onChange={(value) => setStudio(value)}
-          newStudio={newStudio}
+          result={studios}
+          onChange={(value) => setStudios(value)}
+          newObjects={newStudios}
           onCreateNew={createNewStudio}
         />
         <ScrapedPerformersRow

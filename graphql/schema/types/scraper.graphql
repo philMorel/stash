@@ -88,7 +88,7 @@ type ScrapedScene {
   image: String
 
   file: SceneFileType # Resolver
-  studio: ScrapedStudio
+  studios: [ScrapedStudio!]
   tags: [ScrapedTag!]
   performers: [ScrapedPerformer!]
   movies: [ScrapedMovie!] @deprecated(reason: "use groups")
@@ -122,7 +122,7 @@ type ScrapedGallery {
   urls: [String!]
   date: String
 
-  studio: ScrapedStudio
+  studios: [ScrapedStudio!]
   tags: [ScrapedTag!]
   performers: [ScrapedPerformer!]
 }
@@ -146,7 +146,7 @@ type ScrapedImage {
   photographer: String
   urls: [String!]
   date: String
-  studio: ScrapedStudio
+  studios: [ScrapedStudio!]
   tags: [ScrapedTag!]
   performers: [ScrapedPerformer!]
 }

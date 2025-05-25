@@ -333,7 +333,7 @@ func (t *stashBoxBatchStudioTagTask) findStashBoxStudio(ctx context.Context) (*m
 
 	if err := r.WithReadTxn(ctx, func(ctx context.Context) error {
 		if studio != nil {
-			if err := match.ScrapedStudioHierarchy(ctx, r.Studio, studio, t.box.Endpoint); err != nil {
+			if err := match.ScrapedStudio(ctx, r.Studio, studio, t.box.Endpoint); err != nil {
 				return err
 			}
 		}

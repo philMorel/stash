@@ -57,9 +57,9 @@ func (r *mutationResolver) SceneCreate(ctx context.Context, input models.SceneCr
 	if err != nil {
 		return nil, fmt.Errorf("converting date: %w", err)
 	}
-	newScene.StudioID, err = translator.intPtrFromString(input.StudioID)
+	newScene.StudioIDs, err = translator.relatedIds(input.StudioIds)
 	if err != nil {
-		return nil, fmt.Errorf("converting studio id: %w", err)
+		return nil, fmt.Errorf("converting studio ids: %w", err)
 	}
 
 	if input.Urls != nil {
@@ -200,9 +200,9 @@ func scenePartialFromInput(input models.SceneUpdateInput, translator changesetTr
 	if err != nil {
 		return nil, fmt.Errorf("converting date: %w", err)
 	}
-	updatedScene.StudioID, err = translator.optionalIntFromString(input.StudioID, "studio_id")
+	updatedScene.StudioIDs, err = translator.updateIds(input.StudioIds, "studio_ids")
 	if err != nil {
-		return nil, fmt.Errorf("converting studio id: %w", err)
+		return nil, fmt.Errorf("converting studio ids: %w", err)
 	}
 
 	updatedScene.URLs = translator.optionalURLs(input.Urls, input.URL)
@@ -354,9 +354,9 @@ func (r *mutationResolver) BulkSceneUpdate(ctx context.Context, input BulkSceneU
 	if err != nil {
 		return nil, fmt.Errorf("converting date: %w", err)
 	}
-	updatedScene.StudioID, err = translator.optionalIntFromString(input.StudioID, "studio_id")
+	updatedScene.StudioIDs, err = translator.updateIdsBulk(input.StudioIds, "studio_ids")
 	if err != nil {
-		return nil, fmt.Errorf("converting studio id: %w", err)
+		return nil, fmt.Errorf("converting studio ids: %w", err)
 	}
 
 	updatedScene.URLs = translator.optionalURLsBulk(input.Urls, input.URL)

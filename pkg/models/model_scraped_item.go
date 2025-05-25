@@ -483,17 +483,17 @@ func ScrapedTagSortFunction(a, b *ScrapedTag) int {
 
 // A movie from a scraping operation...
 type ScrapedMovie struct {
-	StoredID *string        `json:"stored_id"`
-	Name     *string        `json:"name"`
-	Aliases  *string        `json:"aliases"`
-	Duration *string        `json:"duration"`
-	Date     *string        `json:"date"`
-	Rating   *string        `json:"rating"`
-	Director *string        `json:"director"`
-	URLs     []string       `json:"urls"`
-	Synopsis *string        `json:"synopsis"`
-	Studio   *ScrapedStudio `json:"studio"`
-	Tags     []*ScrapedTag  `json:"tags"`
+	StoredID *string          `json:"stored_id"`
+	Name     *string          `json:"name"`
+	Aliases  *string          `json:"aliases"`
+	Duration *string          `json:"duration"`
+	Date     *string          `json:"date"`
+	Rating   *string          `json:"rating"`
+	Director *string          `json:"director"`
+	URLs     []string         `json:"urls"`
+	Synopsis *string          `json:"synopsis"`
+	Studios  []*ScrapedStudio `json:"studios"`
+	Tags     []*ScrapedTag    `json:"tags"`
 	// This should be a base64 encoded data URL
 	FrontImage *string `json:"front_image"`
 	// This should be a base64 encoded data URL
@@ -516,7 +516,7 @@ func (m ScrapedMovie) ScrapedGroup() ScrapedGroup {
 		Director:   m.Director,
 		URLs:       m.URLs,
 		Synopsis:   m.Synopsis,
-		Studio:     m.Studio,
+		Studios:    m.Studios,
 		Tags:       m.Tags,
 		FrontImage: m.FrontImage,
 		BackImage:  m.BackImage,
@@ -531,18 +531,18 @@ func (m ScrapedMovie) ScrapedGroup() ScrapedGroup {
 
 // ScrapedGroup is a group from a scraping operation
 type ScrapedGroup struct {
-	StoredID *string        `json:"stored_id"`
-	Name     *string        `json:"name"`
-	Aliases  *string        `json:"aliases"`
-	Duration *string        `json:"duration"`
-	Date     *string        `json:"date"`
-	Rating   *string        `json:"rating"`
-	Director *string        `json:"director"`
-	URL      *string        `json:"url"` // included for backward compatibility
-	URLs     []string       `json:"urls"`
-	Synopsis *string        `json:"synopsis"`
-	Studio   *ScrapedStudio `json:"studio"`
-	Tags     []*ScrapedTag  `json:"tags"`
+	StoredID *string          `json:"stored_id"`
+	Name     *string          `json:"name"`
+	Aliases  *string          `json:"aliases"`
+	Duration *string          `json:"duration"`
+	Date     *string          `json:"date"`
+	Rating   *string          `json:"rating"`
+	Director *string          `json:"director"`
+	URL      *string          `json:"url"` // included for backward compatibility
+	URLs     []string         `json:"urls"`
+	Synopsis *string          `json:"synopsis"`
+	Studios  []*ScrapedStudio `json:"studios"`
+	Tags     []*ScrapedTag    `json:"tags"`
 	// This should be a base64 encoded data URL
 	FrontImage *string `json:"front_image"`
 	// This should be a base64 encoded data URL
@@ -562,7 +562,7 @@ func (g ScrapedGroup) ScrapedMovie() ScrapedMovie {
 		Director:   g.Director,
 		URLs:       g.URLs,
 		Synopsis:   g.Synopsis,
-		Studio:     g.Studio,
+		Studios:    g.Studios,
 		Tags:       g.Tags,
 		FrontImage: g.FrontImage,
 		BackImage:  g.BackImage,
@@ -586,7 +586,7 @@ type ScrapedScene struct {
 	// This should be a base64 encoded data URL
 	Image        *string                `json:"image"`
 	File         *SceneFileType         `json:"file"`
-	Studio       *ScrapedStudio         `json:"studio"`
+	Studios      []*ScrapedStudio       `json:"studios"`
 	Tags         []*ScrapedTag          `json:"tags"`
 	Performers   []*ScrapedPerformer    `json:"performers"`
 	Groups       []*ScrapedGroup        `json:"groups"`
@@ -616,7 +616,7 @@ type ScrapedImage struct {
 	Photographer *string             `json:"photographer"`
 	URLs         []string            `json:"urls"`
 	Date         *string             `json:"date"`
-	Studio       *ScrapedStudio      `json:"studio"`
+	Studios      []*ScrapedStudio    `json:"studios"`
 	Tags         []*ScrapedTag       `json:"tags"`
 	Performers   []*ScrapedPerformer `json:"performers"`
 }
@@ -638,7 +638,7 @@ type ScrapedGallery struct {
 	Photographer *string             `json:"photographer"`
 	URLs         []string            `json:"urls"`
 	Date         *string             `json:"date"`
-	Studio       *ScrapedStudio      `json:"studio"`
+	Studios      []*ScrapedStudio    `json:"studios"`
 	Tags         []*ScrapedTag       `json:"tags"`
 	Performers   []*ScrapedPerformer `json:"performers"`
 

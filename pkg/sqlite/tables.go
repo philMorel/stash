@@ -13,17 +13,20 @@ var (
 	imagesTagsJoinTable       = goqu.T(imagesTagsTable)
 	performersImagesJoinTable = goqu.T(performersImagesTable)
 	imagesFilesJoinTable      = goqu.T(imagesFilesTable)
+	imagesStudiosJoinTable    = goqu.T(imagesStudiosTable)
 	imagesURLsJoinTable       = goqu.T(imagesURLsTable)
 
 	galleriesFilesJoinTable      = goqu.T(galleriesFilesTable)
 	galleriesTagsJoinTable       = goqu.T(galleriesTagsTable)
 	performersGalleriesJoinTable = goqu.T(performersGalleriesTable)
 	galleriesScenesJoinTable     = goqu.T(galleriesScenesTable)
+	galleriesStudiosJoinTable    = goqu.T(galleriesStudiosTable)
 	galleriesURLsJoinTable       = goqu.T(galleriesURLsTable)
 
 	scenesFilesJoinTable      = goqu.T(scenesFilesTable)
 	scenesTagsJoinTable       = goqu.T(scenesTagsTable)
 	scenesPerformersJoinTable = goqu.T(performersScenesTable)
+	scenesStudiosJoinTable    = goqu.T(scenesStudiosTable)
 	scenesStashIDsJoinTable   = goqu.T("scene_stash_ids")
 	scenesGroupsJoinTable     = goqu.T(groupsScenesTable)
 	scenesURLsJoinTable       = goqu.T(scenesURLsTable)
@@ -43,6 +46,7 @@ var (
 
 	groupsURLsJoinTable     = goqu.T(groupURLsTable)
 	groupsTagsJoinTable     = goqu.T(groupsTagsTable)
+	groupsStudiosJoinTable  = goqu.T(groupsStudiosTable)
 	groupRelationsJoinTable = goqu.T(groupRelationsTable)
 
 	tagsAliasesJoinTable  = goqu.T(tagAliasesTable)
@@ -91,6 +95,14 @@ var (
 		fkColumn: performersImagesJoinTable.Col(performerIDColumn),
 	}
 
+	imagesStudiosTableMgr = &joinTable{
+		table: table{
+			table:    imagesStudiosJoinTable,
+			idColumn: imagesStudiosJoinTable.Col(imageIDColumn),
+		},
+		fkColumn: imagesStudiosJoinTable.Col(studioIDColumn),
+	}
+
 	imagesURLsTableMgr = &orderedValueTable[string]{
 		table: table{
 			table:    imagesURLsJoinTable,
@@ -137,6 +149,14 @@ var (
 			idColumn: galleriesScenesJoinTable.Col(galleryIDColumn),
 		},
 		fkColumn: galleriesScenesJoinTable.Col(sceneIDColumn),
+	}
+
+	galleriesStudiosTableMgr = &joinTable{
+		table: table{
+			table:    galleriesStudiosJoinTable,
+			idColumn: galleriesStudiosJoinTable.Col(galleryIDColumn),
+		},
+		fkColumn: galleriesStudiosJoinTable.Col(studioIDColumn),
 	}
 
 	galleriesChaptersTableMgr = &table{
@@ -197,6 +217,14 @@ var (
 			idColumn: scenesPerformersJoinTable.Col(sceneIDColumn),
 		},
 		fkColumn: scenesPerformersJoinTable.Col(performerIDColumn),
+	}
+
+	scenesStudiosTableMgr = &joinTable{
+		table: table{
+			table:    scenesStudiosJoinTable,
+			idColumn: scenesStudiosJoinTable.Col(sceneIDColumn),
+		},
+		fkColumn: scenesStudiosJoinTable.Col(studioIDColumn),
 	}
 
 	scenesGalleriesTableMgr = galleriesScenesTableMgr.invert()
@@ -407,6 +435,14 @@ var (
 		fkColumn:     groupsTagsJoinTable.Col(tagIDColumn),
 		foreignTable: tagTableMgr,
 		orderBy:      tagTableSort,
+	}
+
+	groupsStudiosTableMgr = &joinTable{
+		table: table{
+			table:    groupsStudiosJoinTable,
+			idColumn: groupsStudiosJoinTable.Col(groupIDColumn),
+		},
+		fkColumn: groupsStudiosJoinTable.Col(studioIDColumn),
 	}
 
 	groupRelationshipTableMgr = &table{
