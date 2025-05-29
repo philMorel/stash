@@ -168,7 +168,7 @@ const GroupPage: React.FC<IProps> = ({ group, tabKey }) => {
   const [encodingImage, setEncodingImage] = useState<boolean>(false);
 
   const aliases = useMemo(
-    () => (group.aliases ? [group.aliases] : []),
+    () => (group.aliases ? group.aliases : []),
     [group.aliases]
   );
 

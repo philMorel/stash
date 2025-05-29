@@ -48,6 +48,8 @@ var (
 	tagsAliasesJoinTable  = goqu.T(tagAliasesTable)
 	tagRelationsJoinTable = goqu.T(tagRelationsTable)
 	tagsStashIDsJoinTable = goqu.T("tag_stash_ids")
+
+	groupsAliasesJoinTable = goqu.T(groupsAliasesTable)
 )
 
 var (
@@ -411,6 +413,14 @@ var (
 
 	groupRelationshipTableMgr = &table{
 		table: groupRelationsJoinTable,
+	}
+
+	groupsAliasesTableMgr = &stringTable{
+		table: table{
+			table:    groupsAliasesJoinTable,
+			idColumn: groupsAliasesJoinTable.Col(groupIDColumn),
+		},
+		stringColumn: groupsAliasesJoinTable.Col("alias"),
 	}
 )
 
