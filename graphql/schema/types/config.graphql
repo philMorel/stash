@@ -397,6 +397,8 @@ input ConfigInterfaceInput {
   noBrowser: Boolean
   "True if we should send notifications to the desktop"
   notificationsEnabled: Boolean
+  "Show top-level parent name for tags (e.g., 'feeling: happy' instead of just 'happy')"
+  showTagTopLevelParent: Boolean
 }
 
 type ConfigDisableDropdownCreate {
@@ -463,6 +465,8 @@ type ConfigInterfaceResult {
   funscriptOffset: Int
   "Whether to use Stash Hosted Funscript"
   useStashHostedFunscript: Boolean
+  "Show top-level parent name for tags (e.g., 'feeling: happy' instead of just 'happy')"
+  showTagTopLevelParent: Boolean
 }
 
 input ConfigDLNAInput {

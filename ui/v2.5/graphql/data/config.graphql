@@ -107,6 +107,7 @@ fragment ConfigInterfaceData on ConfigInterfaceResult {
   handyKey
   funscriptOffset
   useStashHostedFunscript
+  showTagTopLevelParent
 }
 
 fragment ConfigDLNAData on ConfigDLNAResult {

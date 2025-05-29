@@ -224,6 +224,9 @@ const (
 	DrawFunscriptHeatmapRange        = "draw_funscript_heatmap_range"
 	drawFunscriptHeatmapRangeDefault = true
 
+	ShowTagTopLevelParent        = "show_tag_top_level_parent"
+	showTagTopLevelParentDefault = false
+
 	ThemeColor        = "theme_color"
 	DefaultThemeColor = "#202b33"
 
@@ -1446,6 +1449,10 @@ func (i *Config) GetFunscriptOffset() int {
 
 func (i *Config) GetUseStashHostedFunscript() bool {
 	return i.getBoolDefault(UseStashHostedFunscript, useStashHostedFunscriptDefault)
+}
+
+func (i *Config) GetShowTagTopLevelParent() bool {
+	return i.getBoolDefault(ShowTagTopLevelParent, showTagTopLevelParentDefault)
 }
 
 func (i *Config) GetDeleteFileDefault() bool {

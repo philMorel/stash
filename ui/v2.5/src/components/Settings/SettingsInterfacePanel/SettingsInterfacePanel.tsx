@@ -466,6 +466,13 @@ export const SettingsInterfacePanel: React.FC = PatchComponent(
             checked={ui.showChildTagContent ?? undefined}
             onChange={(v) => saveUI({ showChildTagContent: v })}
           />
+          <BooleanSetting
+            id="show-tag-top-level-parent"
+            headingID="config.ui.tag_panel.options.show_tag_top_level_parent.heading"
+            subHeadingID="config.ui.tag_panel.options.show_tag_top_level_parent.description"
+            checked={iface.showTagTopLevelParent ?? undefined}
+            onChange={(v) => saveInterface({ showTagTopLevelParent: v })}
+          />
         </SettingSection>
         <SettingSection headingID="config.ui.studio_panel.heading">
           <BooleanSetting

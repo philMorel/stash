@@ -158,6 +158,7 @@ func makeConfigInterfaceResult() *ConfigInterfaceResult {
 	handyKey := config.GetHandyKey()
 	scriptOffset := config.GetFunscriptOffset()
 	useStashHostedFunscript := config.GetUseStashHostedFunscript()
+	showTagTopLevelParent := config.GetShowTagTopLevelParent()
 	imageLightboxOptions := config.GetImageLightboxOptions()
 	disableDropdownCreate := config.GetDisableDropdownCreate()
 
@@ -189,6 +190,7 @@ func makeConfigInterfaceResult() *ConfigInterfaceResult {
 		HandyKey:                &handyKey,
 		FunscriptOffset:         &scriptOffset,
 		UseStashHostedFunscript: &useStashHostedFunscript,
+		ShowTagTopLevelParent:   &showTagTopLevelParent,
 	}
 }
 

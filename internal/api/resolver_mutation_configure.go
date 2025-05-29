@@ -510,6 +510,8 @@ func (r *mutationResolver) ConfigureInterface(ctx context.Context, input ConfigI
 	r.setConfigInt(config.FunscriptOffset, input.FunscriptOffset)
 	r.setConfigBool(config.UseStashHostedFunscript, input.UseStashHostedFunscript)
 
+	r.setConfigBool(config.ShowTagTopLevelParent, input.ShowTagTopLevelParent)
+
 	if err := c.Write(); err != nil {
 		return makeConfigInterfaceResult(), err
 	}

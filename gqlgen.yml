@@ -138,4 +138,8 @@ models:
     fields:
       plugins:
         resolver: true
+  Tag:
+    fields:
+      name:
+        resolver: true
   
