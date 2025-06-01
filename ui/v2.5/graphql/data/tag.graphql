@@ -1,6 +1,7 @@
 fragment TagData on Tag {
   id
   name
+  originalName
   sort_name
   description
   aliases

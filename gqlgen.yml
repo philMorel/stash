@@ -142,4 +142,6 @@ models:
     fields:
       name:
         resolver: true
+      originalName:
+        resolver: true
   

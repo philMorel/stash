@@ -56,7 +56,7 @@ export const TagEditPanel: React.FC<ITagEditPanel> = ({
   });
 
   const initialValues = {
-    name: tag?.name ?? "",
+    name: tag?.originalName ?? tag?.name ?? "",
     sort_name: tag?.sort_name ?? "",
     aliases: tag?.aliases ?? [],
     description: tag?.description ?? "",

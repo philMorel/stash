@@ -243,3 +243,8 @@ func (r *tagResolver) Name(ctx context.Context, obj *models.Tag) (string, error)
 	// Combine the top-level parent name and the current tag name
 	return fmt.Sprintf("%s: %s", topLevelParentName, obj.Name), nil
 }
+
+func (r *tagResolver) OriginalName(ctx context.Context, obj *models.Tag) (string, error) {
+	// Always return the original name without any parent prefix
+	return obj.Name, nil
+}
