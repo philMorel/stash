@@ -10,7 +10,7 @@ import { View } from "src/components/List/views";
 
 function useFilterHook(tag: GQL.TagDataFragment, showSubTagContent?: boolean) {
   return (filter: ListFilterModel) => {
-    const tagValue = { id: tag.id, label: tag.name };
+    const tagValue = { id: tag.id, label: tag.prefixedName };
     // if tag is already present, then we modify it, otherwise add
     let tagCriterion = filter.criteria.find((c) => {
       return c.criterionOption.type === "tags";

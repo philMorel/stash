@@ -28,6 +28,7 @@ fragment SlimGalleryData on Gallery {
   tags {
     id
     name
+    prefixedName
   }
   performers {
     id

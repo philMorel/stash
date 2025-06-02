@@ -239,7 +239,7 @@ export const WallItem = <T extends WallItemType>({
         <div>{title}</div>
         {tags?.map((tag) => (
           <span key={tag.id} className="wall-tag">
-            {tag.name}
+            {tag.prefixedName}
           </span>
         ))}
       </div>

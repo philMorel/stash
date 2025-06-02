@@ -288,7 +288,7 @@ export const ScenePlayerScrubber: React.FC<IScenePlayerScrubberProps> = ({
           style={style}
           data-marker-id={index}
         >
-          {marker.title || marker.primary_tag.name}
+          {marker.title || marker.primary_tag.prefixedName}
         </div>
       );
     });

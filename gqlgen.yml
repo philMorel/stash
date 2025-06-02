@@ -140,8 +140,6 @@ models:
         resolver: true
   Tag:
     fields:
-      name:
-        resolver: true
-      originalName:
+      prefixedName:
         resolver: true
   

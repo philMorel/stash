@@ -217,7 +217,7 @@ const TagCardImage: React.FC<IProps> = PatchComponent(
         <img
           loading="lazy"
           className="tag-card-image"
-          alt={tag.name}
+          alt={tag.prefixedName}
           src={tag.image_path ?? ""}
         />
       </>
@@ -228,7 +228,7 @@ const TagCardImage: React.FC<IProps> = PatchComponent(
 const TagCardTitle: React.FC<IProps> = PatchComponent(
   "TagCard.Title",
   ({ tag }) => {
-    return <>{tag.name ?? ""}</>;
+    return <>{tag.prefixedName ?? ""}</>;
   }
 );
 

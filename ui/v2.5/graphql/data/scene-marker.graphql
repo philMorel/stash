@@ -14,11 +14,13 @@ fragment SceneMarkerData on SceneMarker {
   primary_tag {
     id
     name
+    prefixedName
   }
 
   tags {
     id
     name
+    prefixedName
   }
 }
 

@@ -210,7 +210,7 @@ export const TagList: React.FC<ITagList> = ({ filterHook, alterQuery }) => {
             <span>
               <FormattedMessage
                 id="dialogs.delete_confirm"
-                values={{ entityName: deletingTag && deletingTag.name }}
+                values={{ entityName: deletingTag && deletingTag.prefixedName }}
               />
             </span>
           </ModalComponent>
@@ -219,7 +219,7 @@ export const TagList: React.FC<ITagList> = ({ filterHook, alterQuery }) => {
         const tagElements = result.data.findTags.tags.map((tag) => {
           return (
             <div key={tag.id} className="tag-list-row row">
-              <Link to={`/tags/${tag.id}`}>{tag.name}</Link>
+              <Link to={`/tags/${tag.id}`}>{tag.prefixedName}</Link>
 
               <div className="ml-auto">
                 <Button

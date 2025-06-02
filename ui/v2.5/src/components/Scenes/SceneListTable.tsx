@@ -93,7 +93,7 @@ export const SceneListTable: React.FC<ISceneListTableProps> = (
       {scene.tags.map((tag) => (
         <li key={tag.id}>
           <Link to={NavUtils.makeTagScenesUrl(tag)}>
-            <span>{tag.name}</span>
+            <span>{tag.prefixedName}</span>
           </Link>
         </li>
       ))}

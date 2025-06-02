@@ -28,7 +28,7 @@ function useTagQuery(query: string) {
     ).map((p) => {
       return {
         id: p.id,
-        label: p.name,
+        label: p.prefixedName,
       };
     });
   }, [data, query]);

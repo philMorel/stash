@@ -174,7 +174,8 @@ func (r *tagResolver) ChildCount(ctx context.Context, obj *models.Tag) (ret int,
 	return ret, nil
 }
 
-func (r *tagResolver) Name(ctx context.Context, obj *models.Tag) (string, error) {
+// PrefixedName is the resolver for the prefixedName field.
+func (r *tagResolver) PrefixedName(ctx context.Context, obj *models.Tag) (string, error) {
 	// Check if the feature is enabled in settings
 	if !config.GetInstance().GetShowTagTopLevelParent() {
 		return obj.Name, nil
@@ -242,9 +243,4 @@ func (r *tagResolver) Name(ctx context.Context, obj *models.Tag) (string, error)
 
 	// Combine the top-level parent name and the current tag name
 	return fmt.Sprintf("%s: %s", topLevelParentName, obj.Name), nil
-}
-
-func (r *tagResolver) OriginalName(ctx context.Context, obj *models.Tag) (string, error) {
-	// Always return the original name without any parent prefix
-	return obj.Name, nil
 }

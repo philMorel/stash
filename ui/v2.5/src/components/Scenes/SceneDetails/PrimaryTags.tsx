@@ -24,7 +24,7 @@ export const PrimaryTags: React.FC<IPrimaryTags> = ({
     if (primaryTagNames[m.primary_tag.id]) {
       markersByTag[m.primary_tag.id].push(m);
     } else {
-      primaryTagNames[m.primary_tag.id] = m.primary_tag.name;
+      primaryTagNames[m.primary_tag.id] = m.primary_tag.prefixedName;
       markersByTag[m.primary_tag.id] = [m];
     }
   });
@@ -33,7 +33,7 @@ export const PrimaryTags: React.FC<IPrimaryTags> = ({
     const markers = markersByTag[id].map((marker) => {
       const tags = marker.tags.map((tag) => (
         <Badge key={tag.id} variant="secondary" className="tag-item">
-          {tag.name}
+          {tag.prefixedName}
         </Badge>
       ));
 

@@ -1,10 +1,10 @@
 type Tag {
   id: ID!
   name: String!
-  "Original name without parent prefix for editing purposes"
-  originalName: String! # Resolver
   "Value that does not appear in the UI but overrides name for sorting"
   sort_name: String
+  "Prefixed name for display purposes (e.g., 'Parent: Child')"
+  prefixedName: String! # Resolver
   description: String
   aliases: [String!]!
   ignore_auto_tag: Boolean!

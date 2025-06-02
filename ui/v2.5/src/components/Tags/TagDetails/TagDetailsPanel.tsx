@@ -81,7 +81,7 @@ export const CompressedTagDetailsPanel: React.FC<ITagDetails> = ({ tag }) => {
     <div className="sticky detail-header">
       <div className="sticky detail-header-group">
         <a className="tag-name" onClick={() => scrollToTop()}>
-          {tag.name}
+          {tag.prefixedName}
         </a>
         {tag.description ? (
           <>

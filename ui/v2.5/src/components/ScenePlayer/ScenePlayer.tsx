@@ -181,9 +181,9 @@ function handleHotkeys(player: VideoJsPlayer, event: videojs.KeyboardEvent) {
   }
 }
 
-type MarkerFragment = Pick<GQL.SceneMarker, "title" | "seconds"> & {
-  primary_tag: Pick<GQL.Tag, "name">;
-  tags: Array<Pick<GQL.Tag, "name">>;
+export type MarkerFragment = Pick<GQL.SceneMarker, "title" | "seconds"> & {
+  primary_tag: Pick<GQL.Tag, "name" | "prefixedName">;
+  tags: Array<Pick<GQL.Tag, "name" | "prefixedName">>;
 };
 
 function getMarkerTitle(marker: MarkerFragment) {
@@ -191,9 +191,9 @@ function getMarkerTitle(marker: MarkerFragment) {
     return marker.title;
   }
 
-  let ret = marker.primary_tag.name;
+  let ret = marker.primary_tag.prefixedName;
   if (marker.tags.length) {
-    ret += `, ${marker.tags.map((t) => t.name).join(", ")}`;
+    ret += `, ${marker.tags.map((t) => t.prefixedName).join(", ")}`;
   }
 
   return ret;

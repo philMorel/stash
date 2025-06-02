@@ -88,7 +88,7 @@ export const GalleryListTable: React.FC<IGalleryListTableProps> = (
       {gallery.tags.map((tag) => (
         <li key={tag.id}>
           <Link to={NavUtils.makeTagGalleriesUrl(tag)}>
-            <span>{tag.name}</span>
+            <span>{tag.prefixedName}</span>
           </Link>
         </li>
       ))}

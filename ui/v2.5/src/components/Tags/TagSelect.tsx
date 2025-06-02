@@ -38,7 +38,7 @@ export type SelectObject = {
 
 export type Tag = Pick<
   GQL.Tag,
-  "id" | "name" | "sort_name" | "aliases" | "image_path"
+  "id" | "name" | "sort_name" | "aliases" | "image_path" | "prefixedName"
 >;
 type Option = SelectOption<Tag>;
 
@@ -101,12 +101,12 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
 
     const { object } = optionProps.data;
 
-    let { name } = object;
+    let name = object.prefixedName;
 
     // if name does not match the input value but an alias does, show the alias
     const { inputValue } = optionProps.selectProps;
     let alias: string | undefined = "";
-    if (!name.toLowerCase().includes(inputValue.toLowerCase())) {
+    if (!object.name.toLowerCase().includes(inputValue.toLowerCase())) {
       alias = object.aliases?.find((a) =>
         a.toLowerCase().includes(inputValue.toLowerCase())
       );
@@ -160,7 +160,7 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
           id={object.id}
           placement={props.hoverPlacementLabel ?? "top"}
         >
-          <span>{object.name}</span>
+          <span>{object.prefixedName}</span>
         </TagPopover>
       ),
     };
@@ -177,7 +177,7 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
 
     thisOptionProps = {
       ...optionProps,
-      children: <>{object.name}</>,
+      children: <>{object.prefixedName}</>,
     };
 
     return <reactSelectComponents.SingleValue {...thisOptionProps} />;

@@ -17,7 +17,7 @@ import { PatchComponent } from "src/patch";
 
 type SceneMarkerFragment = Pick<GQL.SceneMarker, "id" | "title" | "seconds"> & {
   scene: Pick<GQL.Scene, "id">;
-  primary_tag: Pick<GQL.Tag, "id" | "name">;
+  primary_tag: Pick<GQL.Tag, "id" | "name" | "prefixedName">;
 };
 
 interface ISortNameLinkProps {
@@ -228,7 +228,7 @@ export const GalleryLink: React.FC<IGalleryLinkProps> = ({
 };
 
 interface ITagLinkProps {
-  tag: INamedObject;
+  tag: GQL.SlimTagDataFragment;
   linkType?:
     | "scene"
     | "gallery"
@@ -275,7 +275,7 @@ export const TagLink: React.FC<ITagLinkProps> = PatchComponent(
       }
     }, [tag, linkType]);
 
-    const title = tag.name || "";
+    const title = tag.prefixedName || "";
 
     const tooltip = useMemo(() => {
       if (!hierarchyTooltipID) {

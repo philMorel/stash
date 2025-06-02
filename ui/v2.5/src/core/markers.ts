@@ -1,7 +1,7 @@
 import { SceneMarker, Tag } from "./generated-graphql";
 
 type SceneMarkerFragment = Pick<SceneMarker, "id" | "title"> & {
-  primary_tag: Pick<Tag, "id" | "name">;
+  primary_tag: Pick<Tag, "id" | "name" | "prefixedName">;
 };
 
 export function markerTitle(s: SceneMarkerFragment) {
@@ -9,8 +9,8 @@ export function markerTitle(s: SceneMarkerFragment) {
     return s.title;
   }
 
-  if (s.primary_tag?.name) {
-    return s.primary_tag?.name;
+  if (s.primary_tag?.prefixedName) {
+    return s.primary_tag?.prefixedName;
   }
 
   return "";

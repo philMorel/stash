@@ -440,7 +440,7 @@ const TagPage: React.FC<IProps> = ({ tag, tabKey }) => {
             id="dialogs.delete_confirm"
             values={{
               entityName:
-                tag.name ??
+                tag.prefixedName ??
                 intl.formatMessage({ id: "tag" }).toLocaleLowerCase(),
             }}
           />
@@ -508,7 +508,7 @@ const TagPage: React.FC<IProps> = ({ tag, tabKey }) => {
   return (
     <div id="tag-page" className="row">
       <Helmet>
-        <title>{tag.name}</title>
+        <title>{tag.prefixedName}</title>
       </Helmet>
 
       <div className={headerClassName}>
@@ -519,12 +519,12 @@ const TagPage: React.FC<IProps> = ({ tag, tabKey }) => {
         <div className="detail-container">
           <HeaderImage encodingImage={encodingImage}>
             {tagImage && (
-              <DetailImage className="logo" alt={tag.name} src={tagImage} />
+              <DetailImage className="logo" alt={tag.prefixedName} src={tagImage} />
             )}
           </HeaderImage>
           <div className="row">
             <div className="tag-head col">
-              <DetailTitle name={tag.name} classNamePrefix="tag">
+              <DetailTitle name={tag.prefixedName} classNamePrefix="tag">
                 {!isEditing && (
                   <ExpandCollapseButton
                     collapsed={collapsed}
@@ -557,7 +557,7 @@ const TagPage: React.FC<IProps> = ({ tag, tabKey }) => {
                 />
               ) : (
                 <DetailsEditNavbar
-                  objectName={tag.name}
+                  objectName={tag.prefixedName}
                   isNew={false}
                   isEditing={isEditing}
                   onToggleEdit={() => toggleEditing()}
