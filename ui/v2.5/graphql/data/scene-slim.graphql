@@ -38,6 +38,7 @@ fragment SlimSceneData on Scene {
     primary_tag {
       id
       name
+      prefixedName
     }
   }
 
