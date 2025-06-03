@@ -795,6 +795,10 @@
           "show_child_tagged_content": {
             "description": "In the tag view, display content from the subtags as well",
             "heading": "Display subtag content"
+          },
+          "show_tag_top_level_parent": {
+            "heading": "Show Top Level Parent Tag",
+            "description": "Display the top level parent tag name before the tag name"
           }
         }
       },
