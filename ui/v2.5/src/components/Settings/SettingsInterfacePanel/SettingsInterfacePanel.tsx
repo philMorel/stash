@@ -336,6 +336,13 @@ export const SettingsInterfacePanel: React.FC = PatchComponent(
             checked={iface.showStudioAsText ?? undefined}
             onChange={(v) => saveInterface({ showStudioAsText: v })}
           />
+          <BooleanSetting
+            id="display-tags-instead-of-filename-when-no-title"
+            headingID="config.ui.scene_display.display_tags_instead_of_filename.heading"
+            subHeadingID="config.ui.scene_display.display_tags_instead_of_filename.description"
+            checked={ui.displayTagsInsteadOfFilenameWhenNoTitle ?? false}
+            onChange={(v) => saveUI({ displayTagsInsteadOfFilenameWhenNoTitle: v })}
+          />
         </SettingSection>
 
         <SettingSection headingID="config.ui.scene_player.heading">

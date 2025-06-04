@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef } from "react";
-import { Button, ButtonGroup, OverlayTrigger, Tooltip } from "react-bootstrap";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { Button, ButtonGroup, OverlayTrigger, Tooltip, Badge } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import cx from "classnames";
 import * as GQL from "src/core/generated-graphql";
@@ -30,6 +30,9 @@ import { PatchComponent } from "src/patch";
 import { StudioOverlay } from "../Shared/GridCard/StudioOverlay";
 import { GroupTag } from "../Groups/GroupTag";
 import { FileSize } from "../Shared/FileSize";
+import { Link } from "react-router-dom";
+import { getClient } from "src/core/StashService";
+import { TagPopover } from "../Tags/TagPopover";
 
 interface IScenePreviewProps {
   isPortrait: boolean;
@@ -397,6 +400,22 @@ const SceneCardImage = PatchComponent(
         </div>
       );
     }
+    
+    function maybeRenderDateOverlay() {
+      // Only display date if scene has a date, files exist, has tags, and tag display setting is enabled
+      if (props.scene.date && 
+          props.scene.files.length > 0 && 
+          props.scene.tags && 
+          props.scene.tags.length > 0 && 
+          configuration?.ui?.displayTagsInsteadOfFilenameWhenNoTitle === true) {
+        return (
+          <div className="scene-specs-overlay date-overlay">
+            <span>{props.scene.date}</span>
+          </div>
+        );
+      }
+      return null;
+    }
 
     function onScrubberClick(timestamp: number) {
       const link = props.queue
@@ -429,7 +448,247 @@ const SceneCardImage = PatchComponent(
         <RatingBanner rating={props.scene.rating100} />
         {maybeRenderSceneSpecsOverlay()}
         {maybeRenderInteractiveSpeedOverlay()}
+        {maybeRenderDateOverlay()}
       </>
+    );
+  }
+);
+
+// Simple component to display tags
+const TagsContainer = PatchComponent(
+  "TagsContainer",
+  ({ tags, performers, scene_markers, sceneId }: { 
+    tags: any[], 
+    performers?: any[],
+    scene_markers?: any[],
+    sceneId?: string
+  }) => {
+    // Define tag type
+    interface Tag {
+      id: string;
+      name: string;
+      isPerformer?: boolean;
+      performer?: any;
+      fromPerformer?: string;
+      isMarkerPrimary?: boolean;
+      isMarkerSub?: boolean;
+      fromMarker?: boolean;
+      seconds?: number;
+      [key: string]: any;
+    }
+    
+    const [performerTags, setPerformerTags] = useState<{[key: string]: any[]}>({});
+    
+    // Function to fetch performer tags - memoized to prevent recreation on renders
+    const fetchPerformerTags = useCallback(async (performerId: string) => {
+      try {
+        const result = await getClient().query<GQL.FindPerformerQuery>({
+          query: GQL.FindPerformerDocument,
+          variables: { id: performerId },
+        });
+        
+        return result.data?.findPerformer?.tags || [];
+      } catch (error) {
+        console.error(`Error fetching tags for performer ${performerId}:`, error);
+        return [];
+      }
+    }, []);
+    
+    // Fetch all performer tags once when component mounts or performers change
+    useEffect(() => {
+      if (!performers?.length) return;
+      
+      const fetchAllPerformerTags = async () => {
+        const tagsMap: {[key: string]: any[]} = {};
+        
+        // Create array of promises to fetch all performer tags in parallel
+        const promises = performers.map(async (performer) => {
+          if (!performer?.id) return;
+          
+          const tags = await fetchPerformerTags(performer.id);
+          tagsMap[performer.id] = tags;
+        });
+        
+        // Wait for all fetches to complete
+        await Promise.all(promises);
+        setPerformerTags(tagsMap);
+      };
+      
+      fetchAllPerformerTags();
+    }, [performers, fetchPerformerTags]);
+    
+    // Create array with combined tags from performers, scene and markers
+    const combinedTags = useMemo<{
+      performerTags: Tag[],
+      sceneTags: Tag[],
+      markerTags: Tag[]
+    }>(() => {
+      // Use Sets to track IDs for faster duplicate checking
+      const addedTagIds = new Set<string>();
+      
+      const performerTagsResult: Tag[] = [];
+      const sceneTagsResult: Tag[] = [];
+      const markerTagsResult: Tag[] = [];
+      
+      // Add all performer tags
+      if (performers?.length) {
+        performers.forEach(performer => {
+          if (!performer?.id) return;
+          
+          // Add performer as a special tag
+          performerTagsResult.push({
+            id: `performer-${performer.id}`,
+            name: performer.name,
+            isPerformer: true,
+            performer
+          });
+          
+          // Add tags connected to the performer
+          const pTags = performerTags[performer.id] || [];
+          pTags.forEach(tag => {
+            if (tag?.id && !addedTagIds.has(tag.id)) {
+              addedTagIds.add(tag.id);
+              performerTagsResult.push({
+                ...tag,
+                fromPerformer: performer.name
+              });
+            }
+          });
+        });
+      }
+      
+      // Add scene tags (excluding those already in performer tags)
+      if (tags?.length) {
+        tags.forEach(tag => {
+          if (tag?.id && !addedTagIds.has(tag.id)) {
+            addedTagIds.add(tag.id);
+            sceneTagsResult.push(tag);
+          }
+        });
+      }
+      
+      // Add scene marker tags (excluding those already in performer or scene tags)
+      if (scene_markers?.length) {
+        scene_markers.forEach(marker => {
+          if (marker?.primary_tag) {
+            // Add primary tag from marker if not already added
+            const primaryTag = marker.primary_tag;
+            if (primaryTag?.id && !addedTagIds.has(primaryTag.id)) {
+              addedTagIds.add(primaryTag.id);
+              markerTagsResult.push({
+                ...primaryTag,
+                isMarkerPrimary: true,
+                fromMarker: true,
+                seconds: marker.seconds
+              });
+            }
+            
+            // Add tags from marker if not already added
+            if (marker.tags?.length) {
+              marker.tags.forEach((tag: { id: string; name: string }) => {
+                if (tag?.id && !addedTagIds.has(tag.id)) {
+                  addedTagIds.add(tag.id);
+                  markerTagsResult.push({
+                    ...tag,
+                    fromMarker: true,
+                    isMarkerSub: true,
+                    seconds: marker.seconds
+                  });
+                }
+              });
+            }
+          }
+        });
+      }
+      
+      return {
+        performerTags: performerTagsResult,
+        sceneTags: sceneTagsResult,
+        markerTags: markerTagsResult
+      };
+    }, [tags, performers, performerTags, scene_markers]);
+    
+    const hasAnyTags = 
+      combinedTags.performerTags.length > 0 || 
+      combinedTags.sceneTags.length > 0 || 
+      combinedTags.markerTags.length > 0;
+    
+    if (!hasAnyTags) {
+      return null;
+    }
+    
+    const renderTagRow = (tagList: Tag[], className?: string) => {
+      if (!tagList?.length) return null;
+      
+      return (
+        <div className={`scene-tags-row ${className || ''}`}>
+          {tagList.map((tag: Tag) => {
+            // Performer tag case
+            if (tag.isPerformer) {
+              const popoverContent = (
+                <div className="performer-tag-container row">
+                  <Link
+                    to={`/performers/${tag.performer.id}`}
+                    className="performer-tag col m-auto zoom-2"
+                  >
+                    <img
+                      className="image-thumbnail"
+                      alt={tag.performer.name ?? ""}
+                      src={tag.performer.image_path ?? ""}
+                    />
+                  </Link>
+                </div>
+              );
+
+              return (
+                <Badge 
+                  key={tag.id}
+                  className="tag-item"
+                  variant="secondary"
+                >
+                  <HoverPopover 
+                    className="performer-tag-wrapper"
+                    placement="bottom"
+                    content={popoverContent}
+                  >
+                    <Link to={`/performers/${tag.performer.id}`}>
+                      {tag.name}
+                    </Link>
+                  </HoverPopover>
+                </Badge>
+              );
+            }
+            
+            // Tag from marker with timestamp link
+            if (tag.fromMarker && tag.seconds !== undefined && sceneId) {
+              return (
+                <Badge 
+                  key={tag.id}
+                  className="tag-item"
+                  variant="secondary"
+                >
+                  <TagPopover id={tag.id} placement="top">
+                    <Link to={`/scenes/${sceneId}?t=${tag.seconds}`}>
+                      {tag.name}
+                    </Link>
+                  </TagPopover>
+                </Badge>
+              );
+            }
+            
+            // Regular tag
+            return <TagLink key={tag.id} tag={tag} className="tag-item" />;
+          })}
+        </div>
+      );
+    };
+    
+    return (
+      <div className="scene-tags-container">
+        {renderTagRow(combinedTags.performerTags, 'performer-tags-row')}
+        {renderTagRow(combinedTags.sceneTags, 'scene-tags-row')}
+        {renderTagRow(combinedTags.markerTags, 'marker-tags-row')}
+      </div>
     );
   }
 );
@@ -443,6 +702,7 @@ export const SceneCard = PatchComponent(
       () => (props.scene.files.length > 0 ? props.scene.files[0] : undefined),
       [props.scene]
     );
+
 
     function zoomIndex() {
       if (!props.compact && props.zoomIndex !== undefined) {
@@ -469,11 +729,51 @@ export const SceneCard = PatchComponent(
         })
       : `/scenes/${props.scene.id}`;
 
+    // Get card display settings
+    const displayTitle = objectTitle(props.scene);
+    const hasNoTitle = !props.scene.title;
+    const hasTags = props.scene.tags && props.scene.tags.length > 0;
+    const shouldShowTags = hasNoTitle && 
+                          hasTags && 
+                          configuration?.ui?.displayTagsInsteadOfFilenameWhenNoTitle === true;
+
+    // Create CSS class based on conditions
+    const cardClass = cx(
+      'scene-card', 
+      zoomIndex(), 
+      filelessClass(), 
+      { 'has-tag-title': shouldShowTags }
+    );
+
+    // Custom details section based on display settings
+    const detailsContent = shouldShowTags ? (
+      <>
+        <TagsContainer 
+          tags={props.scene.tags} 
+          performers={props.scene.performers}
+          scene_markers={props.scene.scene_markers}
+          sceneId={props.scene.id}
+        />
+        <div className="scene-card__details scene-card__other-details">
+          <span className="file-path extra-scene-info">
+            {objectPath(props.scene)}
+          </span>
+          <TruncatedText
+            className="scene-card__description"
+            text={props.scene.details}
+            lineCount={3}
+          />
+        </div>
+      </>
+    ) : (
+      <SceneCardDetails {...props} />
+    );
+
     return (
       <GridCard
-        className={`scene-card ${zoomIndex()} ${filelessClass()}`}
+        className={cardClass}
         url={sceneLink}
-        title={objectTitle(props.scene)}
+        title={shouldShowTags ? "" : displayTitle}
         width={props.width}
         linkClassName="scene-card-link"
         thumbnailSectionClassName="video-section"
@@ -486,8 +786,8 @@ export const SceneCard = PatchComponent(
         }
         image={<SceneCardImage {...props} />}
         overlays={<SceneCardOverlays {...props} />}
-        details={<SceneCardDetails {...props} />}
-        popovers={<SceneCardPopovers {...props} />}
+        details={detailsContent}
+        popovers={shouldShowTags ? undefined : <SceneCardPopovers {...props} />}
         selected={props.selected}
         selecting={props.selecting}
         onSelectedChanged={props.onSelectedChanged}

@@ -102,6 +102,9 @@ export interface IUIConfig {
   defaultFilters?: DefaultFilters;
 
   taggerConfig?: ITaggerConfig;
+
+  // if true display tags instead of filename when scene has no title
+  displayTagsInsteadOfFilenameWhenNoTitle?: boolean;
 }
 
 export function getFrontPageContent(

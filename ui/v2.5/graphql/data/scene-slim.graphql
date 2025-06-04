@@ -39,6 +39,10 @@ fragment SlimSceneData on Scene {
       id
       name
     }
+    tags {
+      id
+      name
+    }
   }
 
   galleries {

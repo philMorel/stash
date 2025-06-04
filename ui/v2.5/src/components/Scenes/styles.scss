@@ -194,6 +194,10 @@ textarea.scene-description {
   left: 0.7rem;
 }
 
+.date-overlay {
+  left: 0.7rem;
+}
+
 .extra-scene-info {
   display: none;
 }
@@ -211,6 +215,64 @@ textarea.scene-description {
 
   .scene-group-scene-number {
     text-align: center;
+  }
+  
+  &.has-tag-title .video-section {
+    margin-top: 0;
+  }
+  
+  &.has-tag-title .card-section {
+    padding-top: 0;
+  }
+  
+  // Common scrollbar style for tag containers
+  .scrollable-container {
+    scrollbar-width: thin;
+    
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(120, 120, 120, 0.5);
+      border-radius: 2px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+    
+    scrollbar-color: rgba(120, 120, 120, 0.5) transparent;
+  }
+  
+  .scene-tags-container {
+    margin-bottom: 4px;
+    max-height: 7em;
+    overflow-y: auto;
+    @extend .scrollable-container;
+  }
+  
+  .scene-tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  
+  .tag-item {
+    margin: 0 2px 2px 0;
+  }
+  
+  &__date-container {
+    margin-bottom: 4px;
+  }
+  
+  &__other-details {
+    margin-top: 4px;
+    max-height: 4.5em;
+    overflow-y: auto;
+    @extend .scrollable-container;
   }
 }
 
