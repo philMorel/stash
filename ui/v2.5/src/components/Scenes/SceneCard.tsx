@@ -106,6 +106,7 @@ interface ISceneCardProps {
   zoomIndex?: number;
   onSelectedChanged?: (selected: boolean, shiftKey: boolean) => void;
   fromGroupId?: string;
+  shouldShowTags?: boolean;
 }
 
 const Description: React.FC<{
@@ -402,12 +403,8 @@ const SceneCardImage = PatchComponent(
     }
     
     function maybeRenderDateOverlay() {
-      // Only display date if scene has a date, files exist, has tags, and tag display setting is enabled
-      if (props.scene.date && 
-          props.scene.files.length > 0 && 
-          props.scene.tags && 
-          props.scene.tags.length > 0 && 
-          configuration?.ui?.displayTagsInsteadOfFilenameWhenNoTitle === true) {
+      // Only display date if scene has a date and tags are being displayed
+      if (props.scene.date && props.shouldShowTags) {
         return (
           <div className="scene-specs-overlay date-overlay">
             <span>{props.scene.date}</span>
@@ -784,7 +781,7 @@ export const SceneCard = PatchComponent(
             ? props.scene.paths.interactive_heatmap ?? undefined
             : undefined
         }
-        image={<SceneCardImage {...props} />}
+        image={<SceneCardImage {...props} shouldShowTags={shouldShowTags} />}
         overlays={<SceneCardOverlays {...props} />}
         details={detailsContent}
         popovers={shouldShowTags ? undefined : <SceneCardPopovers {...props} />}
