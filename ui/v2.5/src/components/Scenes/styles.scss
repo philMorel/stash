@@ -209,8 +209,12 @@ textarea.scene-description {
 }
 
 .scene-card {
-  &-preview {
-    aspect-ratio: 16/9;
+  .scene-cover {
+    margin-top: 1rem;
+  }
+
+  .group-popover {
+    margin-top: -1rem;
   }
 
   .scene-group-scene-number {

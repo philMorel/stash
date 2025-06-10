@@ -471,10 +471,14 @@ const TagsContainer = PatchComponent(
       isMarkerSub?: boolean;
       fromMarker?: boolean;
       seconds?: number;
+      isGroup?: boolean;
+      group?: any;
+      fromGroup?: string;
       [key: string]: any;
     }
     
     const [performerTags, setPerformerTags] = useState<{[key: string]: any[]}>({});
+    const [groupTags, setGroupTags] = useState<{[key: string]: { tags: any[], group: any }}>({});
     
     // Function to fetch performer tags - memoized to prevent recreation on renders
     const fetchPerformerTags = useCallback(async (performerId: string) => {
@@ -487,6 +491,21 @@ const TagsContainer = PatchComponent(
         return result.data?.findPerformer?.tags || [];
       } catch (error) {
         console.error(`Error fetching tags for performer ${performerId}:`, error);
+        return [];
+      }
+    }, []);
+    
+    // Function to fetch group tags
+    const fetchGroupTags = useCallback(async (groupId: string) => {
+      try {
+        const result = await getClient().query<GQL.FindGroupQuery>({
+          query: GQL.FindGroupDocument,
+          variables: { id: groupId },
+        });
+        
+        return result.data?.findGroup?.tags || [];
+      } catch (error) {
+        console.error(`Error fetching tags for group ${groupId}:`, error);
         return [];
       }
     }, []);
@@ -514,11 +533,53 @@ const TagsContainer = PatchComponent(
       fetchAllPerformerTags();
     }, [performers, fetchPerformerTags]);
     
+    // Fetch all group tags when component mounts
+    useEffect(() => {
+      // Check if scene has any groups to fetch tags from
+      if (!sceneId) return;
+      
+      const fetchAllGroupTags = async () => {
+        try {
+          // First, get scene details to find groups
+          const sceneResult = await getClient().query<GQL.FindSceneQuery>({
+            query: GQL.FindSceneDocument,
+            variables: { id: sceneId },
+          });
+          
+          const sceneGroups = sceneResult.data?.findScene?.groups || [];
+          
+          if (!sceneGroups.length) return;
+          
+          const tagsMap: {[key: string]: { tags: any[], group: any }} = {};
+          
+          // Create array of promises to fetch all group tags in parallel
+          const promises = sceneGroups.map(async (groupItem) => {
+            if (!groupItem?.group?.id) return;
+            
+            const tags = await fetchGroupTags(groupItem.group.id);
+            tagsMap[groupItem.group.id] = {
+              tags: tags,
+              group: groupItem.group
+            };
+          });
+          
+          // Wait for all fetches to complete
+          await Promise.all(promises);
+          setGroupTags(tagsMap);
+        } catch (error) {
+          console.error("Error fetching group tags:", error);
+        }
+      };
+      
+      fetchAllGroupTags();
+    }, [sceneId, fetchGroupTags]);
+    
     // Create array with combined tags from performers, scene and markers
     const combinedTags = useMemo<{
       performerTags: Tag[],
       sceneTags: Tag[],
-      markerTags: Tag[]
+      markerTags: Tag[],
+      groupTags: Tag[]
     }>(() => {
       // Use Sets to track IDs for faster duplicate checking
       const addedTagIds = new Set<string>();
@@ -526,6 +587,7 @@ const TagsContainer = PatchComponent(
       const performerTagsResult: Tag[] = [];
       const sceneTagsResult: Tag[] = [];
       const markerTagsResult: Tag[] = [];
+      const groupTagsResult: Tag[] = [];
       
       // Add all performer tags
       if (performers?.length) {
@@ -554,7 +616,32 @@ const TagsContainer = PatchComponent(
         });
       }
       
-      // Add scene tags (excluding those already in performer tags)
+      // Add group tags (changed order: now before scene tags)
+      Object.values(groupTags).forEach(groupData => {
+        if (!groupData?.group?.id) return;
+        
+        // Add group as a special tag
+        groupTagsResult.push({
+          id: `group-${groupData.group.id}`,
+          name: groupData.group.name,
+          isGroup: true,
+          group: groupData.group
+        });
+        
+        // Add tags connected to the group
+        const gTags = groupData.tags || [];
+        gTags.forEach((tag: any) => {
+          if (tag?.id && !addedTagIds.has(tag.id)) {
+            addedTagIds.add(tag.id);
+            groupTagsResult.push({
+              ...tag,
+              fromGroup: groupData.group.name
+            });
+          }
+        });
+      });
+      
+      // Add scene tags (excluding those already in performer tags or group tags)
       if (tags?.length) {
         tags.forEach(tag => {
           if (tag?.id && !addedTagIds.has(tag.id)) {
@@ -601,14 +688,16 @@ const TagsContainer = PatchComponent(
       return {
         performerTags: performerTagsResult,
         sceneTags: sceneTagsResult,
-        markerTags: markerTagsResult
+        markerTags: markerTagsResult,
+        groupTags: groupTagsResult
       };
-    }, [tags, performers, performerTags, scene_markers]);
+    }, [tags, performers, performerTags, scene_markers, groupTags]);
     
     const hasAnyTags = 
       combinedTags.performerTags.length > 0 || 
       combinedTags.sceneTags.length > 0 || 
-      combinedTags.markerTags.length > 0;
+      combinedTags.markerTags.length > 0 ||
+      combinedTags.groupTags.length > 0;
     
     if (!hasAnyTags) {
       return null;
@@ -656,6 +745,42 @@ const TagsContainer = PatchComponent(
               );
             }
             
+            // Group tag case
+            if (tag.isGroup) {
+              const popoverContent = (
+                <div className="group-tag-container row">
+                  <Link
+                    to={`/groups/${tag.group.id}`}
+                    className="group-tag col m-auto zoom-2"
+                  >
+                    <img
+                      className="image-thumbnail"
+                      alt={tag.group.name ?? ""}
+                      src={tag.group.front_image_path ?? ""}
+                    />
+                  </Link>
+                </div>
+              );
+
+              return (
+                <Badge 
+                  key={tag.id}
+                  className="tag-item"
+                  variant="secondary"
+                >
+                  <HoverPopover 
+                    className="group-tag-wrapper"
+                    placement="bottom"
+                    content={popoverContent}
+                  >
+                    <Link to={`/groups/${tag.group.id}`}>
+                      {tag.name}
+                    </Link>
+                  </HoverPopover>
+                </Badge>
+              );
+            }
+            
             // Tag from marker with timestamp link
             if (tag.fromMarker && tag.seconds !== undefined && sceneId) {
               return (
@@ -683,6 +808,7 @@ const TagsContainer = PatchComponent(
     return (
       <div className="scene-tags-container">
         {renderTagRow(combinedTags.performerTags, 'performer-tags-row')}
+        {renderTagRow(combinedTags.groupTags, 'group-tags-row')}
         {renderTagRow(combinedTags.sceneTags, 'scene-tags-row')}
         {renderTagRow(combinedTags.markerTags, 'marker-tags-row')}
       </div>
