@@ -855,9 +855,11 @@ export const SceneCard = PatchComponent(
     // Get card display settings
     const displayTitle = objectTitle(props.scene);
     const hasNoTitle = !props.scene.title;
+    const hasPerformers = props.scene.performers && props.scene.performers.length > 0;
     const hasTags = props.scene.tags && props.scene.tags.length > 0;
-    const shouldShowTags = hasNoTitle && 
-                          hasTags && 
+    const hasMarkers = props.scene.scene_markers && props.scene.scene_markers.length > 0;
+    const shouldShowTags = hasNoTitle &&
+                          (hasTags || hasPerformers || hasMarkers) &&
                           configuration?.ui?.displayTagsInsteadOfFilenameWhenNoTitle === true;
 
     // Create CSS class based on conditions
