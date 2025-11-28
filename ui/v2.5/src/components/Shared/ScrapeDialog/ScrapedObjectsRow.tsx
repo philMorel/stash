@@ -18,6 +18,7 @@ function getObjectName<T extends { name: string }>(value: T) {
 // Define interfaces first
 interface IScrapedObjectsRow<T> {
   title: string;
+  field: string;
   result: ScrapeResult<T[]>;
   onChange: (value: ScrapeResult<T[]>) => void;
   newObjects?: T[];
@@ -48,6 +49,7 @@ interface IScrapedStudioRow {
 export const ScrapedObjectsRow = <T,>(props: IScrapedObjectsRow<T>) => {
   const {
     title,
+    field,
     result,
     onChange,
     newObjects,
@@ -59,6 +61,7 @@ export const ScrapedObjectsRow = <T,>(props: IScrapedObjectsRow<T>) => {
   return (
     <ScrapeDialogRow
       title={title}
+      field={field}
       result={result}
       renderOriginalField={() => renderObjects(result)}
       renderNewField={() =>
@@ -148,7 +151,7 @@ export const ScrapedStudioRow: React.FC<IScrapedStudioRow> = ({
 
 export const ScrapedStudiosRow: React.FC<
   IScrapedObjectRowImpl<GQL.ScrapedStudio>
-> = ({ title, result, onChange, newObjects, onCreateNew }) => {
+> = ({ title, field, result, onChange, newObjects, onCreateNew }) => {
   const studiosCopy = useMemo(() => {
     return (
       newObjects?.map((p) => {
