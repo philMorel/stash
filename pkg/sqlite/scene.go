@@ -842,12 +842,18 @@ func (qb *SceneStore) OCountByGroupID(ctx context.Context, groupID int) (int, er
 
 func (qb *SceneStore) OCountByStudioID(ctx context.Context, studioID int) (int, error) {
 	table := qb.table()
+	joinTable := scenesStudiosJoinTable
 	oHistoryTable := goqu.T(scenesODatesTable)
 
 	q := dialect.Select(goqu.COUNT("*")).From(table).InnerJoin(
 		oHistoryTable,
 		goqu.On(table.Col(idColumn).Eq(oHistoryTable.Col(sceneIDColumn))),
-	).Where(table.Col(studioIDColumn).Eq(studioID))
+	).InnerJoin(
+		joinTable,
+		goqu.On(
+			table.Col(idColumn).Eq(joinTable.Col(sceneIDColumn)),
+		),
+	).Where(joinTable.Col(studioIDColumn).Eq(studioID))
 
 	var ret int
 	if err := querySimple(ctx, q, &ret); err != nil {
@@ -1296,7 +1302,8 @@ func (qb *SceneStore) setSceneSort(query *queryBuilder, findFilter *models.FindF
 			getSortDirection(direction),
 		)
 	case "studio":
-		query.join(studioTable, "", "scenes.studio_id = studios.id")
+		query.join(scenesStudiosTable, "", fmt.Sprintf("%s.%s = %s.%s", scenesStudiosTable, sceneIDColumn, sceneTable, idColumn))
+		query.join(studioTable, "", fmt.Sprintf("%s.%s = %s.%s", scenesStudiosTable, studioIDColumn, studioTable, idColumn))
 		query.sortAndPagination += getSort("name", direction, studioTable)
 	default:
 		query.sortAndPagination += getSort(sort, direction, "scenes")

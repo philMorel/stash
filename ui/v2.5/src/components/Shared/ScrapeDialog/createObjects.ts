@@ -6,7 +6,7 @@ import {
   useStudioCreate,
   useTagCreate,
 } from "src/core/StashService";
-import { ScrapeResult } from "./scrapeResult";
+import { ScrapeResult, ObjectScrapeResult } from "./scrapeResult";
 import { useIntl } from "react-intl";
 import { scrapedPerformerToCreateInput } from "src/core/performers";
 import { scrapedGroupToCreateInput } from "src/core/groups";
@@ -38,75 +38,6 @@ function useCreateObject<T>(
   }
 
   return createNewObject;
-}
-
-interface IUseCreateNewStudioProps {
-  scrapeResult: ObjectScrapeResult<GQL.ScrapedStudio>;
-  setScrapeResult: (
-    scrapeResult: ObjectScrapeResult<GQL.ScrapedStudio>
-  ) => void;
-  setNewObject: (newObject: GQL.ScrapedStudio | undefined) => void;
-  endpoint?: string;
-}
-
-export function useCreateScrapedStudio(props: IUseCreateNewStudioProps) {
-  const [createStudio] = useStudioCreate();
-
-  const { scrapeResult, setScrapeResult, newObjects, setNewObjects } = props;
-
-  async function createNewStudio(toCreate: GQL.ScrapedStudio) {
-    const input: GQL.StudioCreateInput = {
-      name: toCreate.name,
-      urls: toCreate.urls,
-      aliases:
-        toCreate.aliases
-          ?.split(",")
-          .map((a) => a.trim())
-          .filter((a) => a) || [],
-      details: toCreate.details,
-      image: toCreate.image,
-      tag_ids: (toCreate.tags ?? [])
-        .filter((t) => t.stored_id)
-        .map((t) => t.stored_id!),
-    };
-
-    if (props.endpoint && toCreate.remote_site_id) {
-      input.stash_ids = [
-        {
-          endpoint: props.endpoint,
-          stash_id: toCreate.remote_site_id,
-        },
-      ];
-    }
-
-    const result = await createStudio({
-      variables: {
-        input,
-      },
-    });
-
-    const newValue = [...(scrapeResult.newValue ?? [])];
-    if (result.data?.studioCreate)
-      newValue.push({
-        stored_id: result.data.studioCreate.id,
-        name: result.data.studioCreate.name,
-      });
-
-    // add the new studio to the new studios value
-    const studioClone = scrapeResult.cloneWithValue(newValue);
-    setScrapeResult(studioClone);
-
-    // remove the studio from the list
-    const newStudiosClone = newObjects.concat();
-    const sIndex = newStudiosClone.findIndex((s) => s.name === toCreate.name);
-    if (sIndex === -1) throw new Error("Could not find studio to remove");
-
-    newStudiosClone.splice(sIndex, 1);
-
-    setNewObjects(newStudiosClone);
-  }
-
-  return useCreateObject("studio", createNewStudio);
 }
 
 interface IUseCreateNewObjectProps<T> {
@@ -241,4 +172,66 @@ export function useCreateScrapedTag(
   }
 
   return useCreateObject("tag", createNewTag);
+}
+
+export function useCreateScrapedStudios(
+  props: IUseCreateNewObjectProps<GQL.ScrapedStudio>
+) {
+  const [createStudio] = useStudioCreate();
+
+  const { scrapeResult, setScrapeResult, newObjects, setNewObjects } = props;
+
+  async function createNewStudio(toCreate: GQL.ScrapedStudio) {
+    const input: GQL.StudioCreateInput = {
+      name: toCreate.name,
+      urls: toCreate.urls,
+      aliases:
+        toCreate.aliases
+          ?.split(",")
+          .map((a) => a.trim())
+          .filter((a) => a) || [],
+      details: toCreate.details,
+      image: toCreate.image,
+      tag_ids: (toCreate.tags ?? [])
+        .filter((t) => t.stored_id)
+        .map((t) => t.stored_id!),
+    };
+
+    if (props.endpoint && toCreate.remote_site_id) {
+      input.stash_ids = [
+        {
+          endpoint: props.endpoint,
+          stash_id: toCreate.remote_site_id,
+        },
+      ];
+    }
+
+    const result = await createStudio({
+      variables: {
+        input,
+      },
+    });
+
+    const newValue = [...(scrapeResult.newValue ?? [])];
+    if (result.data?.studioCreate)
+      newValue.push({
+        stored_id: result.data.studioCreate.id,
+        name: result.data.studioCreate.name,
+      });
+
+    // add the new studio to the new studios value
+    const studioClone = scrapeResult.cloneWithValue(newValue);
+    setScrapeResult(studioClone);
+
+    // remove the studio from the list
+    const newStudiosClone = newObjects.concat();
+    const sIndex = newStudiosClone.findIndex((s) => s.name === toCreate.name);
+    if (sIndex === -1) throw new Error("Could not find studio to remove");
+
+    newStudiosClone.splice(sIndex, 1);
+
+    setNewObjects(newStudiosClone);
+  }
+
+  return useCreateObject("studio", createNewStudio);
 }
